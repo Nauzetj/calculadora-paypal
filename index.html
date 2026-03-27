@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Compras Internacionales</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-color: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--bg-color) 0%, #1e1b4b 100%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            text-align: center;
+            margin-bottom: 24px;
+            font-weight: 700;
+            background: linear-gradient(to right, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .input-group {
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .currency-symbol {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        input {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 16px 16px 16px 40px;
+            color: var(--text-main);
+            font-size: 1.125rem;
+            font-weight: 600;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.3);
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        .results {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 16px;
+            padding: 24px;
+            margin-top: 24px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.4s ease;
+            display: none;
+        }
+
+        .results.active {
+            opacity: 1;
+            transform: translateY(0);
+            display: block;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            align-items: center;
+        }
+
+        .result-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .result-label {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            line-height: 1.4;
+        }
+
+        .result-value {
+            font-weight: 700;
+            font-size: 1rem;
+            text-align: right;
+        }
+
+        .highlight-value {
+            color: var(--accent);
+            font-size: 1.25rem;
+        }
+
+        .warning-value {
+            color: var(--warning);
+        }
+        
+        .danger-value {
+            color: var(--danger);
+        }
+
+        .footer-note {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Calculadora de PayPal / Banco</h1>
+        
+        <div class="input-group">
+            <label for="saldo">Saldo Disponible en Cuenta</label>
+            <div class="input-wrapper">
+                <span class="currency-symbol">$</span>
+                <input type="number" id="saldo" placeholder="0.00" step="0.01" min="0">
+            </div>
+        </div>
+
+        <div class="results" id="resultados">
+            <div class="result-item">
+                <div class="result-label">Monto Máximo de Compra <br><small>(Colocar en PayPal/Tienda)</small></div>
+                <div class="result-value highlight-value" id="monto-compra">$0.00</div>
+            </div>
+            <div class="result-item">
+                <div class="result-label">Comisión Bancaria (2.5%)</div>
+                <div class="result-value danger-value" id="comision">-$0.00</div>
+            </div>
+            <div class="result-item">
+                <div class="result-label">Bloqueo Preventivo (5%) <br><small>(Se libera despues)</small></div>
+                <div class="result-value warning-value" id="bloqueo">-$0.00</div>
+            </div>
+            <div class="result-item">
+                <div class="result-label">Saldo Remanente Post-Bloqueo</div>
+                <div class="result-value" id="saldo-real">$0.00</div>
+            </div>
+        </div>
+
+        <div class="footer-note">
+            Calculadora financiera con reglas bancarias
+        </div>
+    </div>
+
+    <script>
+        const inputSaldo = document.getElementById('saldo');
+        const rMontoCompra = document.getElementById('monto-compra');
+        const rComision = document.getElementById('comision');
+        const rBloqueo = document.getElementById('bloqueo');
+        const rSaldoReal = document.getElementById('saldo-real');
+        const resultadosDiv = document.getElementById('resultados');
+
+        inputSaldo.addEventListener('input', function() {
+            const saldo = parseFloat(this.value);
+            
+            if (isNaN(saldo) || saldo <= 0) {
+                resultadosDiv.classList.remove('active');
+                return;
+            }
+
+            // Reglas de negocio
+            const comisionFija = 0.025;
+            const bloqueoPreventivo = 0.05;
+            const factorTotal = 1.0 + comisionFija + bloqueoPreventivo; // 1.075
+
+            // Cálculos
+            const montoMaximo = saldo / factorTotal;
+            const comision = montoMaximo * comisionFija;
+            const bloqueo = montoMaximo * bloqueoPreventivo;
+            const saldoReal = saldo - (montoMaximo + comision);
+
+            // Renderizado
+            rMontoCompra.textContent = `$${montoMaximo.toFixed(2)}`;
+            rComision.textContent = `-$${comision.toFixed(2)}`;
+            rBloqueo.textContent = `-$${bloqueo.toFixed(2)}`;
+            rSaldoReal.textContent = `$${saldoReal.toFixed(2)}`;
+            
+            resultadosDiv.classList.add('active');
+        });
+    </script>
+</body>
+</html>
