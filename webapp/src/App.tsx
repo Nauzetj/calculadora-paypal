@@ -1,19 +1,14 @@
 import { useState } from 'react';
 
 function App() {
-  const [saldo, setSaldo] = useState<number | ''>('');
+  const [monto, setMonto] = useState<number | ''>('');
 
-  const numSaldo = typeof saldo === 'number' ? saldo : 0;
-  const showResults = numSaldo > 0;
+  const numMonto = typeof monto === 'number' ? monto : 0;
+  const showResults = numMonto > 0;
 
   const comisionFija = 0.025;
-  const bloqueoPreventivo = 0.05;
-  const factorTotal = 1.0 + comisionFija + bloqueoPreventivo; // 1.075
-
-  const montoMaximo = numSaldo / factorTotal;
-  const comision = montoMaximo * comisionFija;
-  const bloqueo = montoMaximo * bloqueoPreventivo;
-  const saldoReal = numSaldo - (montoMaximo + comision);
+  const comision = numMonto * comisionFija;
+  const totalBanco = numMonto + comision;
 
   return (
     <div className="container" style={{
@@ -32,15 +27,15 @@ function App() {
       
       <div style={{ marginBottom: '24px' }}>
         <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: 'var(--text-muted)' }}>
-          Saldo Disponible en Cuenta
+          Monto a enviar (en PayPal)
         </label>
         <div style={{ position: 'relative' }}>
           <span style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', fontWeight: 600 }}>$</span>
           <input 
             type="number" 
             placeholder="0.00" 
-            value={saldo}
-            onChange={(e) => setSaldo(e.target.value ? parseFloat(e.target.value) : '')}
+            value={monto}
+            onChange={(e) => setMonto(e.target.value ? parseFloat(e.target.value) : '')}
             style={{
               width: '100%', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid rgba(255, 255, 255, 0.2)',
               borderRadius: '12px', padding: '16px 16px 16px 40px', color: 'var(--text-main)',
@@ -55,10 +50,9 @@ function App() {
           background: 'rgba(0, 0, 0, 0.2)', borderRadius: '16px', padding: '24px', marginTop: '24px',
           animation: 'slideUp 0.4s ease'
         }}>
-          <ResultRow label="Monto Máximo de Compra (Colocar en PayPal)" value={`$${montoMaximo.toFixed(2)}`} highlight />
-          <ResultRow label="Comisión Bancaria (2.5%)" value={`-$${comision.toFixed(2)}`} danger />
-          <ResultRow label="Bloqueo Preventivo (5%) (Se libera luego)" value={`-$${bloqueo.toFixed(2)}`} warning />
-          <ResultRow label="Saldo Remanente Post-Bloqueo" value={`$${saldoReal.toFixed(2)}`} />
+          <ResultRow label="Monto a Enviar (PayPal)" value={`$${numMonto.toFixed(2)}`} />
+          <ResultRow label="Comisión Bancaria (2.5%)" value={`+$${comision.toFixed(2)}`} danger />
+          <ResultRow label="Total Requerido en el Banco" value={`$${totalBanco.toFixed(2)}`} highlight />
         </div>
       )}
 
@@ -69,7 +63,7 @@ function App() {
   );
 }
 
-function ResultRow({ label, value, highlight, warning, danger }: any) {
+function ResultRow({ label, value, highlight, danger }: any) {
   return (
     <div style={{
       display: 'flex', justifyContent: 'space-between', marginBottom: '16px',
@@ -80,7 +74,7 @@ function ResultRow({ label, value, highlight, warning, danger }: any) {
       </div>
       <div style={{
         fontWeight: 700, fontSize: highlight ? '1.25rem' : '1rem',
-        color: highlight ? 'var(--accent)' : warning ? 'var(--warning)' : danger ? 'var(--danger)' : 'white'
+        color: highlight ? 'var(--accent)' : danger ? 'var(--danger)' : 'white'
       }}>
         {value}
       </div>

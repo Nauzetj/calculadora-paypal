@@ -157,10 +157,6 @@
             font-size: 1.25rem;
         }
 
-        .warning-value {
-            color: var(--warning);
-        }
-        
         .danger-value {
             color: var(--danger);
         }
@@ -178,29 +174,25 @@
         <h1>Calculadora de PayPal / Banco</h1>
         
         <div class="input-group">
-            <label for="saldo">Saldo Disponible en Cuenta</label>
+            <label for="monto">Monto exacto a enviar por PayPal</label>
             <div class="input-wrapper">
                 <span class="currency-symbol">$</span>
-                <input type="number" id="saldo" placeholder="0.00" step="0.01" min="0">
+                <input type="number" id="monto" placeholder="0.00" step="0.01" min="0">
             </div>
         </div>
 
         <div class="results" id="resultados">
             <div class="result-item">
-                <div class="result-label">Monto Máximo de Compra <br><small>(Colocar en PayPal/Tienda)</small></div>
-                <div class="result-value highlight-value" id="monto-compra">$0.00</div>
+                <div class="result-label">Monto a Enviar (PayPal)</div>
+                <div class="result-value" id="monto-enviar">$0.00</div>
             </div>
             <div class="result-item">
                 <div class="result-label">Comisión Bancaria (2.5%)</div>
-                <div class="result-value danger-value" id="comision">-$0.00</div>
+                <div class="result-value danger-value" id="comision">+$0.00</div>
             </div>
             <div class="result-item">
-                <div class="result-label">Bloqueo Preventivo (5%) <br><small>(Se libera despues)</small></div>
-                <div class="result-value warning-value" id="bloqueo">-$0.00</div>
-            </div>
-            <div class="result-item">
-                <div class="result-label">Saldo Remanente Post-Bloqueo</div>
-                <div class="result-value" id="saldo-real">$0.00</div>
+                <div class="result-label">Total Requerido en tu Banco</div>
+                <div class="result-value highlight-value" id="total-banco">$0.00</div>
             </div>
         </div>
 
@@ -210,37 +202,29 @@
     </div>
 
     <script>
-        const inputSaldo = document.getElementById('saldo');
-        const rMontoCompra = document.getElementById('monto-compra');
+        const inputMonto = document.getElementById('monto');
+        const rMontoEnviar = document.getElementById('monto-enviar');
         const rComision = document.getElementById('comision');
-        const rBloqueo = document.getElementById('bloqueo');
-        const rSaldoReal = document.getElementById('saldo-real');
+        const rTotalBanco = document.getElementById('total-banco');
         const resultadosDiv = document.getElementById('resultados');
 
-        inputSaldo.addEventListener('input', function() {
-            const saldo = parseFloat(this.value);
+        inputMonto.addEventListener('input', function() {
+            const monto = parseFloat(this.value);
             
-            if (isNaN(saldo) || saldo <= 0) {
+            if (isNaN(monto) || monto <= 0) {
                 resultadosDiv.classList.remove('active');
                 return;
             }
 
             // Reglas de negocio
             const comisionFija = 0.025;
-            const bloqueoPreventivo = 0.05;
-            const factorTotal = 1.0 + comisionFija + bloqueoPreventivo; // 1.075
-
-            // Cálculos
-            const montoMaximo = saldo / factorTotal;
-            const comision = montoMaximo * comisionFija;
-            const bloqueo = montoMaximo * bloqueoPreventivo;
-            const saldoReal = saldo - (montoMaximo + comision);
+            const comision = monto * comisionFija;
+            const totalBanco = monto + comision; 
 
             // Renderizado
-            rMontoCompra.textContent = `$${montoMaximo.toFixed(2)}`;
-            rComision.textContent = `-$${comision.toFixed(2)}`;
-            rBloqueo.textContent = `-$${bloqueo.toFixed(2)}`;
-            rSaldoReal.textContent = `$${saldoReal.toFixed(2)}`;
+            rMontoEnviar.textContent = `$${monto.toFixed(2)}`;
+            rComision.textContent = `+$${comision.toFixed(2)}`;
+            rTotalBanco.textContent = `$${totalBanco.toFixed(2)}`;
             
             resultadosDiv.classList.add('active');
         });

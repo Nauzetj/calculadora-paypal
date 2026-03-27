@@ -1,55 +1,42 @@
-def calcular_monto_compra(saldo_disponible: float) -> dict:
+def calcular_monto_requerido(monto_enviar: float) -> dict:
     """
-    Calcula el monto máximo que se puede enviar por PayPal / Tienda
-    considerando las reglas del banco.
+    Calcula cuánto dinero se necesita tener en el banco para poder
+    enviar una cantidad específica por PayPal.
     """
     comision_bancaria_fija = 0.025  # 2.5%
-    bloqueo_preventivo = 0.05       # 5.0%
     
-    # El monto total que el banco debilita será del 107.5% de la compra original.
-    factor_total = 1.0 + comision_bancaria_fija + bloqueo_preventivo # 1.075
-    
-    # Monto máximo de compra
-    monto_compra = saldo_disponible / factor_total
-    
-    # Desglose
-    comision = monto_compra * comision_bancaria_fija
-    bloqueo = monto_compra * bloqueo_preventivo
-    
-    # El saldo finalmente disponible en tu cuenta después de que 
-    # se libere el bloqueo temporal de seguridad.
-    saldo_real_restante = saldo_disponible - (monto_compra + comision)
+    # Cálculos
+    comision = monto_enviar * comision_bancaria_fija
+    total_requerido = monto_enviar + comision
 
     return {
-        "monto_compra": monto_compra,
+        "monto_enviar": monto_enviar,
         "comision": comision,
-        "bloqueo": bloqueo,
-        "saldo_real_restante": saldo_real_restante
+        "total_requerido": total_requerido
     }
 
 def main():
     print("\n" + "="*50)
-    print("💳 Calculadora de Compras Internacionales (PayPal)")
+    print("💳 Calculadora de Envíos Internacionales (PayPal)")
     print("="*50)
     
     try:
-        saldo_input = input("\nIngrese su Saldo Disponible en la cuenta (ej. 595): $")
-        saldo = float(saldo_input)
+        monto_input = input("\nIngrese el monto exacto que desea enviar por PayPal: $")
+        monto = float(monto_input)
         
-        if saldo <= 0:
-            print("❌ El saldo debe ser mayor a 0.")
+        if monto <= 0:
+            print("❌ El monto debe ser mayor a 0.")
             return
             
-        resultados = calcular_monto_compra(saldo)
+        resultados = calcular_monto_requerido(monto)
         
         print("\n" + "-"*50)
         print("💡 DESGLOSE DE LA OPERACIÓN")
         print("-"*50)
-        print(f"✅ Monto Máximo a ingresar en PayPal:   ${resultados['monto_compra']:.2f}")
-        print(f"🏦 Comisión Bancaria Definitiva (2.5%):  -${resultados['comision']:.2f}")
-        print(f"🔒 Bloqueo Preventivo Temporal (5%):     -${resultados['bloqueo']:.2f} (se libera)")
+        print(f"✅ Monto a enviar por PayPal:            ${resultados['monto_enviar']:.2f}")
+        print(f"🏦 Comisión Bancaria Definitiva (2.5%):  +${resultados['comision']:.2f}")
         print("-"*50)
-        print(f"💰 Saldo Remanente Post-Bloqueo:        ${resultados['saldo_real_restante']:.2f}")
+        print(f"💰 Total requerido en la cuenta de banco: ${resultados['total_requerido']:.2f}")
         print("="*50 + "\n")
         
     except ValueError:
